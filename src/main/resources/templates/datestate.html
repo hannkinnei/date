@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>日期</title>
+<script type="text/javascript" th:src="@{/js/jquery-1.8.2.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery-editable-select.js}"></script>
+<script type="text/javascript" th:src="@{/js/colResizable-1.6.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/js/YMDClass.js}"></script>
+<script type="text/javascript" th:src="@{/js/check.js}"></script>
+<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+<link th:href="@{/css/styles.css}" rel="stylesheet" />
+<link th:href="@{/css/datepicker.css}" rel="stylesheet" />
+<link th:href="@{/css/jquery-editable-select.css}" rel="stylesheet" />
+<script type="text/javascript" th:inline="javascript">
+$(function (){
+	new YMDselect('year', 'month', 'day');
+	$("#day").change(function(){
+		var year = $("#year").val();
+		var month = $("#month").val();
+		var day = $("#day").val();
+		$.ajax({
+			type: 'get',
+			url: '/date/dayState/' + year + '/' + month + '/' + day,
+			success: function (data){
+				var dataJson = JSON.parse(data);
+				if(dataJson.result == "success"){
+					$("#result").text("成功");
+					$("#span_year").text(dataJson.year);
+					$("#span_month").text(dataJson.month);
+					$("#span_day").text(dataJson.day);
+					$("#span_dayState").text(dataJson.dayState);
+					$("#span_dayStateStr").text(dataJson.dayStateStr);
+					$("#span_weekday").text(dataJson.weekday);
+				} else{
+					$("#result").text("没有找到");
+					$("#span_year").text("");
+					$("#span_month").text("");
+					$("#span_day").text("");
+					$("#span_dayState").text("");
+					$("#span_dayStateStr").text("");
+					$("#span_weekday").text("");
+				}
+			}
+		});
+	});
+	
+	$("#button").click(function(){
+		var year = $("#year").val();
+		var month = $("#month").val();
+		var day = $("#day").val();
+		var dayState = $("#dayStateSelect").val();
+		$.ajax({
+			type: 'get',
+			url: '/admin/date/dayState/' + year + '/' + month + '/' + day + '/' + dayState,
+			success: function (data){
+				var dataJson = JSON.parse(data);
+				if(dataJson.result == "success"){
+					$("#result").text("成功");
+					$("#span_year").text(dataJson.year);
+					$("#span_month").text(dataJson.month);
+					$("#span_day").text(dataJson.day);
+					$("#span_dayState").text(dataJson.dayState);
+					$("#span_dayStateStr").text(dataJson.dayStateStr);
+					$("#span_weekday").text(dataJson.weekday);
+				} else{
+					$("#result").text(dataJson.message);
+					
+				}
+			}
+		});
+	});
+	
+	$("#button_excel").click(function(){
+		window.location.href="/admin/date/print/excel";
+	});
+});
+</script>
+</head>
+<body>
+<select id="year" name="year"></select>
+<select id="month" name="month"></select>
+<select id="day" name="day"></select>
+<br/>
+<span id="result"></span><br/>
+年：<span id="span_year"></span><br/>
+月：<span id="span_month"></span><br/>
+日：<span id="span_day"></span><br/>
+<span id="span_dayState"></span><br/>
+<span id="span_dayStateStr"></span><br/>
+<span id="span_weekday"></span>
+<br/>
+<select id="dayStateSelect">
+	<option value="0">工作日</option>
+	<option value="1">休息日</option>
+	<option value="2">节假日</option>
+</select>
+<button id="button">添加/修改</button>
+<button id="button_excel">输出日期表</button>
+<br/>
+<div class="main">
+	<h3>上传日期表格</h3>
+	<form method="POST" action="/admin/date/upload" enctype="multipart/form-data" class="fileinput-button">
+		<input type="file" name="file_date" /><br />
+		<br /> <input type="submit" value="上传" />
+	</form>
+	<span th:text="${message}"></span>
+</div>
+</body>
+</html>
